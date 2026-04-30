@@ -1,0 +1,534 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-main: #0f172a;
+  --bg-sidebar: #111827;
+  --bg-panel: #ffffff;
+  --bg-soft: #f8fafc;
+  --border: #e5e7eb;
+  --text-dark: #111827;
+  --text-soft: #6b7280;
+  --gold: rgb(212, 175, 55);
+  --gold-hover: rgb(255, 215, 0);
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #eaf1f8;
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #0f172a, #111827);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.brand-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.brand h2 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.brand p {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-btn {
+  width: 100%;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.menu-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(212, 175, 55, 0.18);
+}
+
+.menu-btn.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.95), rgba(255, 215, 0, 0.95));
+  color: #111827;
+  box-shadow: 0 12px 25px rgba(212, 175, 55, 0.2);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.logout-btn {
+  width: 100%;
+  border: none;
+  background: var(--danger);
+  color: #fff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.25s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  background: var(--danger-hover);
+}
+
+.main-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.topbar {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.topbar h1 {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.topbar p {
+  color: var(--text-soft);
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  border-radius: 14px;
+}
+
+.user-label {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.separator {
+  color: #9ca3af;
+}
+
+.panel-principal {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  min-height: 520px;
+  padding: 28px;
+}
+
+.welcome-card,
+.module-card {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.welcome-card h2,
+.module-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.welcome-card p,
+.module-card p {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.module-meta {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.meta-box {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.meta-box span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+
+.meta-box strong {
+  font-size: 1rem;
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 18px;
+  }
+
+  .main-content {
+    padding: 18px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==================================================
+   RDD-03: Botones con tamaño mínimo de 44px
+   RDD-04: Espaciado uniforme mínimo de 8px
+================================================== */
+
+button,
+.menu-btn,
+.btn-inventario,
+.btn-pedidos,
+.btn-ventas,
+.btn-reportes,
+.btn-guardar-inv,
+.btn-actualizar-inv,
+.btn-cancelar-inv,
+.btn-agregar-pedido,
+.btn-guardar-pedido,
+.btn-eliminar-pedido,
+.btn-cancelar-pedido,
+.btn-editar-pedido,
+.btn-factura,
+.btn-regresar-ventas,
+.btn-consultar-reporte,
+.btn-exportar-reporte {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  border-radius: 12px;
+}
+
+/* Espaciado mínimo entre elementos generales */
+.inventario-module,
+.pedidos-module,
+.ventas-module,
+.reportes-module {
+  gap: 16px;
+}
+
+/* Espaciado mínimo dentro de formularios */
+.inventario-form,
+.pedidos-form {
+  gap: 16px;
+}
+
+/* Espaciado mínimo entre campos */
+.inventario-row,
+.pedidos-row,
+.ventas-field,
+.reportes-field {
+  margin-bottom: 8px;
+}
+
+/* Espaciado mínimo entre botones */
+.inventario-actions,
+.pedidos-actions,
+.pedidos-detail-actions,
+.ventas-actions,
+.reportes-actions {
+  gap: 12px;
+}
+
+/* Espaciado mínimo entre tarjetas/secciones */
+.inventario-card,
+.pedidos-card,
+.ventas-card,
+.reportes-card,
+.module-card {
+  margin-bottom: 16px;
+}
+
+/* Espaciado mínimo en barras superiores de módulos */
+.ventas-toolbar,
+.reportes-toolbar,
+.inventario-toolbar {
+  gap: 12px;
+}
+/* ==================================================
+   IDENTIDAD VISUAL GLOBAL IVSOLSTORE
+   Paleta basada en el logo
+================================================== */
+
+:root {
+  --iv-mint: #a8d8bf;
+  --iv-mint-light: #eaf7f0;
+  --iv-pink: #e68ac3;
+  --iv-pink-light: #fde8f4;
+  --iv-gold: #d4af37;
+  --iv-gold-light: #f6df77;
+  --iv-dark: #0f172a;
+  --iv-dark-soft: #1e293b;
+  --iv-white: #ffffff;
+  --iv-border: #d9e6df;
+  --iv-shadow: rgba(15, 23, 42, 0.12);
+}
+
+/* Fondo general */
+body {
+  background: linear-gradient(135deg, var(--iv-mint-light), #fdf7fb);
+  color: var(--iv-dark);
+}
+
+/* Panel lateral */
+.sidebar,
+.menu-lateral,
+aside {
+  background: linear-gradient(180deg, var(--iv-dark), #182235);
+  color: var(--iv-white);
+}
+
+/* Logo / marca */
+.logo-box,
+.logo-container {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}
+
+/* Tarjetas principales */
+.module-card,
+.inventario-card,
+.pedidos-card,
+.ventas-card,
+.reportes-card,
+.clientes-card,
+.login-card {
+  background: linear-gradient(180deg, var(--iv-white), #fafffc);
+  border: 1px solid var(--iv-border);
+  box-shadow: 0 14px 35px var(--iv-shadow);
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: var(--iv-dark);
+}
+
+/* Botones generales */
+button,
+.menu-btn,
+.btn-inventario,
+.btn-pedidos,
+.btn-ventas,
+.btn-reportes {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+/* Botones principales */
+.btn-guardar-inv,
+.btn-guardar-pedido,
+.btn-factura,
+.btn-consultar-reporte,
+.btn-exportar-reporte,
+button[type="submit"] {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+  border: none;
+}
+
+/* Botones secundarios */
+.btn-actualizar-inv,
+.btn-agregar-pedido {
+  background: linear-gradient(135deg, var(--iv-pink), #f2a6d0);
+  color: var(--iv-dark);
+  border: none;
+}
+
+/* Botones neutros */
+.btn-cancelar-inv,
+.btn-cancelar-pedido,
+.btn-regresar-ventas,
+.btn-editar-pedido {
+  background: var(--iv-mint-light);
+  color: var(--iv-dark);
+  border: 1px solid var(--iv-border);
+}
+
+/* Hover */
+button:hover,
+.menu-btn:hover,
+.btn-inventario:hover,
+.btn-pedidos:hover,
+.btn-ventas:hover,
+.btn-reportes:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
+/* Botón activo del menú */
+.menu-btn.active,
+.menu-btn:hover {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  border: 1px solid var(--iv-border);
+  border-radius: 14px;
+  background: var(--iv-white);
+  color: var(--iv-dark);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--iv-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+}
+
+/* Tablas */
+table thead,
+.inventario-table thead,
+.pedidos-table thead,
+.ventas-table thead,
+.reportes-table thead {
+  background: linear-gradient(135deg, var(--iv-dark), var(--iv-dark-soft));
+  color: var(--iv-white);
+}
+
+table tbody tr:hover,
+.inventario-table tbody tr:hover,
+.pedidos-table tbody tr:hover,
+.ventas-table tbody tr:hover,
+.reportes-table tbody tr:hover {
+  background: var(--iv-mint-light);
+}
+
+table tbody tr.selected,
+.inventario-table tbody tr.selected,
+.pedidos-table tbody tr.selected,
+.ventas-table tbody tr.selected {
+  background: var(--iv-pink-light);
+}
+
+/* Mensajes */
+.inventario-message.ok,
+.pedidos-message.ok,
+.ventas-message.ok,
+.reportes-message.ok {
+  color: #15803d;
+}
+
+.inventario-message.error,
+.pedidos-message.error,
+.ventas-message.error,
+.reportes-message.error {
+  color: #dc2626;
+}
+
+/* Resúmenes y totales */
+.total-box,
+.reportes-summary-card {
+  background: linear-gradient(135deg, var(--iv-white), var(--iv-mint-light));
+  border: 1px solid var(--iv-border);
+}
+
+.total-box span,
+.reportes-summary-card strong {
+  color: var(--iv-dark);
+}
+
+/* Login */
+.login-container,
+.login-page {
+  background: linear-gradient(135deg, var(--iv-mint), var(--iv-pink-light));
+}
+
+.login-card {
+  border-radius: 24px;
+}
+
+.login-card h1,
+.login-card h2 {
+  color: var(--iv-dark);
+}
+
+.login-card button,
+#btnAcceder {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}

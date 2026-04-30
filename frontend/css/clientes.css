@@ -1,0 +1,214 @@
+.clientes-module {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.clientes-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 22px;
+}
+
+.clientes-card {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.clientes-card h2,
+.clientes-card h3 {
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.clientes-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-row label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+}
+
+.form-row textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: rgb(212, 175, 55);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.14);
+}
+
+.clientes-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-clientes {
+  border: none;
+  min-height: 46px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.25s ease;
+}
+
+.btn-clientes:hover {
+  transform: translateY(-2px);
+}
+
+.btn-guardar {
+  background: rgb(212, 175, 55);
+  color: #111827;
+}
+
+.btn-actualizar {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-limpiar {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-clientes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.clientes-message {
+  min-height: 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.clientes-message.ok {
+  color: #15803d;
+}
+
+.clientes-message.error {
+  color: #dc2626;
+}
+
+.clientes-toolbar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.toolbar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toolbar-field label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.toolbar-field input {
+  min-height: 44px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.toolbar-field input:focus {
+  border-color: rgb(212, 175, 55);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.14);
+}
+
+.clientes-table-wrapper {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+}
+
+.clientes-table {
+  min-width: 950px;
+}
+
+.clientes-table thead {
+  background: #0f172a;
+  color: #fff;
+}
+
+.clientes-table th,
+.clientes-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.94rem;
+}
+
+.clientes-table tbody tr {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clientes-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.clientes-table tbody tr.selected {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.clientes-empty {
+  padding: 18px;
+  text-align: center;
+  color: #64748b;
+}
+
+@media (max-width: 1200px) {
+  .clientes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .clientes-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .clientes-actions {
+    grid-template-columns: 1fr;
+  }
+}

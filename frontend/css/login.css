@@ -1,0 +1,503 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-fondo-1: #0f172a;
+  --color-fondo-2: #1e293b;
+  --color-panel: rgba(15, 23, 42, 0.92);
+  --color-borde: rgba(255, 255, 255, 0.08);
+  --color-texto: #e5e7eb;
+  --color-texto-secundario: #cbd5e1;
+  --color-dorado: rgb(212, 175, 55);
+  --color-dorado-hover: rgb(255, 215, 0);
+  --color-rosa: rgb(232, 155, 180);
+  --color-rosa-hover: rgb(255, 180, 200);
+  --color-error: #ef4444;
+  --color-warning: #f97316;
+  --color-input: rgba(255, 255, 255, 0.05);
+  --sombra-panel: 0 20px 45px rgba(0, 0, 0, 0.35);
+  --radio-xl: 24px;
+  --radio-lg: 18px;
+  --radio-md: 14px;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.14), transparent 30%),
+    linear-gradient(135deg, var(--color-fondo-1), var(--color-fondo-2));
+  color: var(--color-texto);
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-xl);
+  box-shadow: var(--sombra-panel);
+  padding: 36px 30px;
+  backdrop-filter: blur(10px);
+}
+
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+  min-height: 130px;
+  overflow: hidden;
+}
+
+.logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+}
+
+.titulo {
+  text-align: center;
+  color: var(--color-dorado);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeTitle 1.2s ease forwards;
+  animation-delay: 0.85s;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: var(--color-texto-secundario);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radio-md);
+  background: var(--color-input);
+  color: var(--color-texto);
+  padding: 0 14px;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.form-group input::placeholder {
+  color: rgba(229, 231, 235, 0.55);
+}
+
+.form-group input:focus {
+  border-color: rgba(212, 175, 55, 0.8);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+}
+
+.acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.btn {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.btn-acceder {
+  background: var(--color-dorado);
+  color: #111827;
+}
+
+.btn-acceder:hover {
+  background: var(--color-dorado-hover);
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.22);
+}
+
+.btn-salir {
+  background: var(--color-rosa);
+  color: #1f2937;
+}
+
+.btn-salir:hover {
+  background: var(--color-rosa-hover);
+  box-shadow: 0 10px 20px rgba(232, 155, 180, 0.18);
+}
+
+.mensaje-estado {
+  min-height: 22px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #fbbf24;
+}
+
+.bloqueo-visual {
+  margin-top: 2px;
+  padding: 12px 14px;
+  text-align: center;
+  font-weight: 700;
+  border-radius: var(--radio-md);
+  background: rgba(239, 68, 68, 0.22);
+  color: #fff;
+  transition: background-color 0.25s ease;
+}
+
+.oculto {
+  display: none;
+}
+
+.fade-in {
+  animation: fadeInCard 0.8s ease forwards;
+}
+
+.slide-down {
+  animation: slideDownLogo 0.9s ease forwards;
+}
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownLogo {
+  from {
+    opacity: 0;
+    transform: translateY(-150px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeTitle {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-card {
+    padding: 28px 18px;
+  }
+
+  .titulo {
+    font-size: 1.7rem;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+/* ==================================================
+   IDENTIDAD VISUAL GLOBAL IVSOLSTORE
+   Paleta basada en el logo
+================================================== */
+
+:root {
+  --iv-mint: #a8d8bf;
+  --iv-mint-light: #eaf7f0;
+  --iv-pink: #e68ac3;
+  --iv-pink-light: #fde8f4;
+  --iv-gold: #d4af37;
+  --iv-gold-light: #f6df77;
+  --iv-dark: #0f172a;
+  --iv-dark-soft: #1e293b;
+  --iv-white: #ffffff;
+  --iv-border: #d9e6df;
+  --iv-shadow: rgba(15, 23, 42, 0.12);
+}
+
+/* Fondo general */
+body {
+  background: linear-gradient(135deg, var(--iv-mint-light), #fdf7fb);
+  color: var(--iv-dark);
+}
+
+/* Panel lateral */
+.sidebar,
+.menu-lateral,
+aside {
+  background: linear-gradient(180deg, var(--iv-dark), #182235);
+  color: var(--iv-white);
+}
+
+/* Logo / marca */
+.logo-box,
+.logo-container {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}
+
+/* Tarjetas principales */
+.module-card,
+.inventario-card,
+.pedidos-card,
+.ventas-card,
+.reportes-card,
+.clientes-card,
+.login-card {
+  background: linear-gradient(180deg, var(--iv-white), #fafffc);
+  border: 1px solid var(--iv-border);
+  box-shadow: 0 14px 35px var(--iv-shadow);
+}
+
+/* Títulos */
+h1, h2, h3 {
+  color: var(--iv-dark);
+}
+
+/* Botones generales */
+button,
+.menu-btn,
+.btn-inventario,
+.btn-pedidos,
+.btn-ventas,
+.btn-reportes {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+/* Botones principales */
+.btn-guardar-inv,
+.btn-guardar-pedido,
+.btn-factura,
+.btn-consultar-reporte,
+.btn-exportar-reporte,
+button[type="submit"] {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+  border: none;
+}
+
+/* Botones secundarios */
+.btn-actualizar-inv,
+.btn-agregar-pedido {
+  background: linear-gradient(135deg, var(--iv-pink), #f2a6d0);
+  color: var(--iv-dark);
+  border: none;
+}
+
+/* Botones neutros */
+.btn-cancelar-inv,
+.btn-cancelar-pedido,
+.btn-regresar-ventas,
+.btn-editar-pedido {
+  background: var(--iv-mint-light);
+  color: var(--iv-dark);
+  border: 1px solid var(--iv-border);
+}
+
+/* Hover */
+button:hover,
+.menu-btn:hover,
+.btn-inventario:hover,
+.btn-pedidos:hover,
+.btn-ventas:hover,
+.btn-reportes:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+}
+
+/* Botón activo del menú */
+.menu-btn.active,
+.menu-btn:hover {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  border: 1px solid var(--iv-border);
+  border-radius: 14px;
+  background: var(--iv-white);
+  color: var(--iv-dark);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--iv-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+}
+
+/* Tablas */
+table thead,
+.inventario-table thead,
+.pedidos-table thead,
+.ventas-table thead,
+.reportes-table thead {
+  background: linear-gradient(135deg, var(--iv-dark), var(--iv-dark-soft));
+  color: var(--iv-white);
+}
+
+table tbody tr:hover,
+.inventario-table tbody tr:hover,
+.pedidos-table tbody tr:hover,
+.ventas-table tbody tr:hover,
+.reportes-table tbody tr:hover {
+  background: var(--iv-mint-light);
+}
+
+table tbody tr.selected,
+.inventario-table tbody tr.selected,
+.pedidos-table tbody tr.selected,
+.ventas-table tbody tr.selected {
+  background: var(--iv-pink-light);
+}
+
+/* Mensajes */
+.inventario-message.ok,
+.pedidos-message.ok,
+.ventas-message.ok,
+.reportes-message.ok {
+  color: #15803d;
+}
+
+.inventario-message.error,
+.pedidos-message.error,
+.ventas-message.error,
+.reportes-message.error {
+  color: #dc2626;
+}
+
+/* Resúmenes y totales */
+.total-box,
+.reportes-summary-card {
+  background: linear-gradient(135deg, var(--iv-white), var(--iv-mint-light));
+  border: 1px solid var(--iv-border);
+}
+
+.total-box span,
+.reportes-summary-card strong {
+  color: var(--iv-dark);
+}
+
+/* Login */
+.login-container,
+.login-page {
+  background: linear-gradient(135deg, var(--iv-mint), var(--iv-pink-light));
+}
+
+.login-card {
+  border-radius: 24px;
+}
+
+.login-card h1,
+.login-card h2 {
+  color: var(--iv-dark);
+}
+
+.login-card button,
+#btnAcceder {
+  background: linear-gradient(135deg, var(--iv-gold), var(--iv-gold-light));
+  color: var(--iv-dark);
+}
+.login-card label,
+.login-form label,
+label {
+  color: #0f172a;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.login-card input,
+.login-form input,
+input {
+  color: #0f172a;
+  background: #ffffff;
+  opacity: 1;
+}
+
+.login-card input::placeholder,
+.login-form input::placeholder,
+input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.login-logo,
+.logo-login,
+#logoLogin,
+.login-card img {
+  animation: logoEntrance 0.9s ease-out both;
+}
+
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-25px) scale(0.85);
+    filter: blur(6px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(6px) scale(1.04);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+

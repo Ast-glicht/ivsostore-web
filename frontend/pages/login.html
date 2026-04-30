@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IVSOLSTORE | Inicio de Sesión</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/login.css" />
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-card fade-in">
+      <div class="logo-wrapper">
+        <img
+          src="../assets/img/logo.png"
+          alt="Logo IVSOLSTORE"
+          class="logo slide-down"
+          id="pictureLogo"
+        />
+      </div>
+
+      <h1 class="titulo" id="lblTitulo">IVSOLSTORE</h1>
+
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="txtUsuario">Usuario</label>
+          <input
+            type="text"
+            id="txtUsuario"
+            name="usuario"
+            placeholder="Ingresá tu usuario"
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="txtContrasena">Contraseña</label>
+          <input
+            type="password"
+            id="txtContrasena"
+            name="contrasena"
+            placeholder="Ingresá tu contraseña"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <div class="acciones">
+          <button type="submit" id="btnAcceder" class="btn btn-acceder">
+            Acceder
+          </button>
+
+          <button type="button" id="btnSalir" class="btn btn-salir">
+            Salir
+          </button>
+        </div>
+
+        <p id="mensajeEstado" class="mensaje-estado"></p>
+
+        <p id="lbBloqueoVisual" class="bloqueo-visual oculto"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/modules/login/login.js"></script>
+  
+</body>
+</html>

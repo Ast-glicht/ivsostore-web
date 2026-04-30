@@ -1,0 +1,204 @@
+.inventario-module {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.inventario-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 22px;
+}
+
+.inventario-card {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.inventario-card h2,
+.inventario-card h3 {
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.inventario-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inventario-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.inventario-row label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.inventario-row input,
+.inventario-row textarea {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+}
+
+.inventario-row textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.inventario-row input:focus,
+.inventario-row textarea:focus {
+  border-color: rgb(212, 175, 55);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.14);
+}
+
+.inventario-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-inventario {
+  border: none;
+  min-height: 46px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.25s ease;
+}
+
+.btn-inventario:hover {
+  transform: translateY(-2px);
+}
+
+.btn-guardar-inv {
+  background: rgb(212, 175, 55);
+  color: #111827;
+}
+
+.btn-actualizar-inv {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-cancelar-inv {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-inventario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.inventario-message {
+  min-height: 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.inventario-message.ok {
+  color: #15803d;
+}
+
+.inventario-message.error {
+  color: #dc2626;
+}
+
+.inventario-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.inventario-toolbar label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.inventario-toolbar input {
+  min-height: 44px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.inventario-toolbar input:focus {
+  border-color: rgb(212, 175, 55);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.14);
+}
+
+.inventario-table-wrapper {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+}
+
+.inventario-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1150px;
+}
+
+.inventario-table thead {
+  background: #0f172a;
+  color: #fff;
+}
+
+.inventario-table th,
+.inventario-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.94rem;
+}
+
+.inventario-table tbody tr {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.inventario-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.inventario-table tbody tr.selected {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.inventario-empty {
+  padding: 18px;
+  text-align: center;
+  color: #64748b;
+}
+
+@media (max-width: 1200px) {
+  .inventario-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .inventario-actions {
+    grid-template-columns: 1fr;
+  }
+}

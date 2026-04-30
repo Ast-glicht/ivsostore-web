@@ -1,0 +1,22 @@
+{
+  "name": "ivsostore-web",
+  "version": "1.0.0",
+  "description": "Sistema web IVSOLSTORE",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.0",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "mssql": "^12.2.1",
+    "pdfkit": "^0.18.0"
+  }
+}

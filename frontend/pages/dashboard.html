@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IVSOLSTORE | Menú Principal</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/clientes.css" />
+  <link rel="stylesheet" href="../css/inventario.css" />
+  <link rel="stylesheet" href="../css/pedidos.css" />
+  <link rel="stylesheet" href="../css/ventas.css" />
+  <link rel="stylesheet" href="../css/reportes.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+      <div class="brand-logo">
+  <img src="../assets/img/logo.png" alt="IVSOLSTORE Logo">
+</div>
+        <div>
+          <h2>IVSOLSTORE</h2>
+          <p>Sistema de Gestión</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-btn active" id="btnClientes">Clientes</button>
+        <button class="menu-btn" id="btnInventario">Inventario</button>
+        <button class="menu-btn" id="btnPedidos">Pedidos</button>
+        <button class="menu-btn" id="btnVentas">Ventas</button>
+        <button class="menu-btn" id="btnInforme">Informe</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="cerrarSesion">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h1>Menú Principal</h1>
+          <p>Bienvenido al sistema</p>
+        </div>
+
+        <div class="user-box">
+          <span class="user-label">Usuario:</span>
+          <strong id="usuarioActual">-</strong>
+          <span class="separator">|</span>
+          <span class="user-label">Rol:</span>
+          <strong id="rolActual">-</strong>
+        </div>
+      </header>
+
+      <section class="panel-principal" id="panelPrincipal">
+        <div class="welcome-card">
+          <h2>Bienvenido a IVSOLSTORE</h2>
+          <p>
+            Seleccioná una opción del menú lateral para cargar el módulo correspondiente.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="../js/modules/dashboard/dashboard.js"></script>
+</body>
+</html>
