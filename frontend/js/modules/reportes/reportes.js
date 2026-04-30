@@ -1,5 +1,5 @@
-const API_REPORTES = "http://localhost:3000/api/reportes";
-
+// frontend/js/modules/reportes/reportes.js
+const API_REPORTES = "https://ivsostore-web-production.up.railway.app/api/reportes";
 let ultimoFiltro = {
   fechaInicio: "",
   fechaFin: ""

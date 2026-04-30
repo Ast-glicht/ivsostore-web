@@ -6,6 +6,7 @@ const loginForm = document.getElementById("loginForm");
 const mensajeEstado = document.getElementById("mensajeEstado");
 const lbBloqueoVisual = document.getElementById("lbBloqueoVisual");
 
+const API_LOGIN = "https://ivsostore-web-production.up.railway.app/api/auth/login";
 let intentosFallidos = 0;
 const LIMITE_INTENTOS = 5;
 let segundosRestantes = 60;
