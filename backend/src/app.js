@@ -9,14 +9,16 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../../frontend')));
+const publicPath = path.join(__dirname, '../public');
+
+app.use(express.static(publicPath));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/pages/login.html'));
+  res.sendFile(path.join(publicPath, 'pages/login.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/pages/dashboard.html'));
+  res.sendFile(path.join(publicPath, 'pages/dashboard.html'));
 });
 const authRoutes = require('./routes/authRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
