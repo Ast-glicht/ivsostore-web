@@ -1,5 +1,5 @@
 // frontend/js/modules/pedidos/pedidosEditar.js
-const API_PEDIDOS = "https://ivsostore-web-production.up.railway.app/api/pedidos";
+const API_PEDIDOS = "/api/pedidos";
 let pedidoActual = null;
 let detalleActual = [];
 let inventarioDetalle = [];

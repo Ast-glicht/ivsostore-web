@@ -1,5 +1,5 @@
 // frontend/js/modules/pedidos/pedidosEditar.js
-const API_PEDIDOS = "https://ivsostore-web-production.up.railway.app/api/pedidos";
+const API_PEDIDOS = "/api/pedidos";
 function formatearFecha(fecha) {
   if (!fecha) return "";
   const d = new Date(fecha);

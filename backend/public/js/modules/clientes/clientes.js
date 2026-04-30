@@ -1,5 +1,4 @@
-
-const API_CLIENTES = "https://ivsostore-web-production.up.railway.app/api/clientes";
+const API_CLIENTES = "/api/clientes";
 const NICARAGUA = {
   "Boaco": ["Boaco", "Camoapa", "San José de los Remates", "San Lorenzo", "Santa Lucía", "Teustepe"],
   "Carazo": ["Jinotepe", "Diriamba", "Dolores", "El Rosario", "La Conquista", "La Paz de Carazo", "San Marcos", "Santa Teresa"],

@@ -1,5 +1,5 @@
 // frontend/js/modules/ventas/ventas.js
-const API_VENTAS = "https://ivsostore-web-production.up.railway.app/api/ventas";
+const API_VENTAS = "/api/ventas";
 let pedidosVentas = [];
 let pedidoSeleccionadoId = null;
 

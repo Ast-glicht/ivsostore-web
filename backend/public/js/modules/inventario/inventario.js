@@ -1,4 +1,4 @@
-const API_INVENTARIO = "https://ivsostore-web-production.up.railway.app/api/inventario";
+const API_INVENTARIO = "/api/inventario";
 let productosOriginales = [];
 let productoIdActual = null;
 
