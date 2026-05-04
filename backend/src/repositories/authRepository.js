@@ -1,17 +1,46 @@
 const { getConnection, sql } = require('../config/db');
 
-async function validarLogin(usuario, contrasena) {
+async function obtenerUsuarioPorCorreo(correo) {
+  const pool = await getConnection();
+
+  const result = await pool.request()
+    .input('Correo', sql.VarChar, correo)
+    .query(`
+      SELECT TOP 1 Usuario
+      FROM Usuario
+      WHERE Correo = @Correo
+    `);
+
+  return result.recordset[0]?.Usuario || null;
+}
+
+async function validarLogin(usuarioOCorreo, contrasena) {
   try {
     const pool = await getConnection();
 
+    let usuarioParaLogin = usuarioOCorreo;
+
+    if (usuarioOCorreo.includes('@')) {
+      const usuarioEncontrado = await obtenerUsuarioPorCorreo(usuarioOCorreo);
+
+      if (!usuarioEncontrado) {
+        return {
+          valido: false,
+          mensaje: 'El usuario o correo no existe.',
+          usuario: '',
+          rol: ''
+        };
+      }
+
+      usuarioParaLogin = usuarioEncontrado;
+    }
+
     const result = await pool.request()
-      .input('Usuario', sql.VarChar, usuario)
+      .input('Usuario', sql.VarChar, usuarioParaLogin)
       .input('Contraseña', sql.VarChar, contrasena)
       .execute('Validar_Acceso');
 
     const row = result.recordset[0];
-
-    console.log('Respuesta del SP Validar_Acceso:', row);
 
     if (!row) {
       return {
