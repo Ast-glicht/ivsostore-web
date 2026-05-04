@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "cd backend && npm install && npm start"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0"
   }
 }
