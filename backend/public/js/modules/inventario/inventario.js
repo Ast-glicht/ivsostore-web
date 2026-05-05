@@ -463,11 +463,10 @@ async function guardarProducto() {
     }
 
     mostrarMensajeInventario(resultado.mensaje || "Producto insertado correctamente.", "ok");
- limpiarCamposInventario();
+limpiarCamposInventario();
 await cargarProductos();
 mostrarAlertaStockBajo();
-await cargarProductos();
-mostrarAlertaStockBajo();
+mostrarAlertaProductosPorVencer();
   } catch (error) {
     mostrarMensajeInventario("Error al guardar el producto.", "error");
   }
@@ -504,9 +503,10 @@ async function actualizarProducto() {
     }
 
     mostrarMensajeInventario(resultado.mensaje || "Producto y fecha actualizados correctamente.", "ok");
-    limpiarCamposInventario();
+limpiarCamposInventario();
 await cargarProductos();
 mostrarAlertaStockBajo();
+mostrarAlertaProductosPorVencer();
   } catch (error) {
     mostrarMensajeInventario("Error al actualizar el producto.", "error");
   }
@@ -530,7 +530,7 @@ function filtrarInventario() {
     const precio = String(producto.precio ?? "").toLowerCase();
     const fecha = String(formatearFechaTabla(producto.fechaDeCompra) || "").toLowerCase();
     const stock = String(producto.stock ?? "").toLowerCase();
-
+const fechaVencimiento = String(producto.fechaVencimiento ? String(producto.fechaVencimiento).slice(0, 10) : "").toLowerCase();
     return (
       nombreProducto.includes(filtro) ||
       codigo.includes(filtro) ||
@@ -539,7 +539,8 @@ function filtrarInventario() {
       numeroProveedor.includes(filtro) ||
       precio.includes(filtro) ||
       fecha.includes(filtro) ||
-      stock.includes(filtro)
+      stock.includes(filtro) ||
+      fechaVencimiento.includes(filtro)
     );
   });
 
@@ -629,6 +630,7 @@ export async function initInventarioModule(panelPrincipal) {
 aplicarRestriccionesInventario();
 await cargarProductos();
 mostrarAlertaStockBajo();
+mostrarAlertaProductosPorVencer();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

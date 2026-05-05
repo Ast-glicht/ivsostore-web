@@ -12,6 +12,7 @@ async function listarProductos() {
       i.Precio AS precio,
       i.Stock AS stock,
       i.FechaDeCompra AS fechaDeCompra,
+      i.FechaVencimiento AS fechaVencimiento,
       p.NombreProveedor AS proveedor,
       p.NumeroProveedor AS numeroProveedor
     FROM inventario i
@@ -21,6 +22,7 @@ async function listarProductos() {
 
   return result.recordset;
 }
+
 async function existeCodigoProducto(codigo, idExcluir = null) {
   const pool = await getConnection();
 
@@ -39,7 +41,6 @@ async function existeCodigoProducto(codigo, idExcluir = null) {
   }
 
   const result = await request.query(query);
-
   return result.recordset[0].total > 0;
 }
 
@@ -50,7 +51,8 @@ async function registrarProducto({
   precio,
   stock,
   proveedor,
-  numeroProveedor
+  numeroProveedor,
+  fechaVencimiento
 }) {
   const pool = await getConnection();
 
@@ -62,6 +64,7 @@ async function registrarProducto({
     .input('stock', sql.Int, stock)
     .input('nombreProveedor', sql.VarChar, proveedor)
     .input('numeroProveedor', sql.VarChar, numeroProveedor)
+    .input('fechaVencimiento', sql.Date, fechaVencimiento || null)
     .execute('sp_registrar_producto');
 }
 
@@ -73,7 +76,8 @@ async function actualizarProducto(id, {
   stock,
   proveedor,
   numeroProveedor,
-  fechaDeCompra
+  fechaDeCompra,
+  fechaVencimiento
 }) {
   const pool = await getConnection();
 
@@ -90,10 +94,13 @@ async function actualizarProducto(id, {
 
   await pool.request()
     .input('fecha', sql.DateTime, fechaDeCompra)
+    .input('fechaVencimiento', sql.Date, fechaVencimiento || null)
     .input('id', sql.Int, id)
     .query(`
       UPDATE inventario
-      SET FechaDeCompra = @fecha
+      SET 
+        FechaDeCompra = @fecha,
+        FechaVencimiento = @fechaVencimiento
       WHERE IDproducto = @id
     `);
 }
