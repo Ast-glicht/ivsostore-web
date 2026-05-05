@@ -202,3 +202,103 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==============================
+   ALERTAS INVENTARIO
+   Stock bajo / Productos por vencer
+============================== */
+
+.stock-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.stock-alert-modal {
+  width: min(560px, 95vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #ffffff, #fafffc);
+  border: 1px solid #d9e6df;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+  animation: modalInventarioIn 0.25s ease;
+}
+
+.stock-alert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.stock-alert-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #991b1b;
+}
+
+.stock-alert-close {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.stock-alert-text {
+  margin: 0 0 16px;
+  color: #334155;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.stock-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stock-alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.stock-alert-item strong {
+  color: #111827;
+}
+
+.stock-alert-item span {
+  color: #b45309;
+  font-weight: 800;
+}
+
+@keyframes modalInventarioIn {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
