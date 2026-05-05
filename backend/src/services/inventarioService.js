@@ -92,7 +92,8 @@ if (codigoExiste) {
     precio: Number(data.precio),
     stock: Number(data.stock),
     proveedor: data.proveedor.trim(),
-    numeroProveedor: data.numeroProveedor.trim()
+    numeroProveedor: data.numeroProveedor.trim(),
+    fechaVencimiento: data.fechaVencimiento || null
   });
 
   return {
@@ -133,7 +134,8 @@ if (codigoExiste) {
     stock: Number(data.stock),
     proveedor: data.proveedor.trim(),
     numeroProveedor: data.numeroProveedor.trim(),
-    fechaDeCompra: data.fechaDeCompra ? new Date(data.fechaDeCompra) : new Date()
+    fechaDeCompra: data.fechaDeCompra ? new Date(data.fechaDeCompra) : new Date(),
+    fechaVencimiento: data.fechaVencimiento || null
   });
 
   return {

@@ -39,7 +39,10 @@ function renderInventarioView() {
               <label for="dtpFechaCompra">Fecha de compra</label>
               <input type="datetime-local" id="dtpFechaCompra" />
             </div>
-
+<div class="inventario-row">
+  <label for="dtpFechaVencimiento">Fecha de vencimiento</label>
+  <input type="date" id="dtpFechaVencimiento" />
+</div>
             <div class="inventario-row">
               <label for="txtProveedor">Proveedor</label>
               <input type="text" id="txtProveedor" placeholder="Ingrese el proveedor" />
@@ -79,13 +82,14 @@ function renderInventarioView() {
                   <th>Precio</th>
                   <th>Stock</th>
                   <th>Fecha de Compra</th>
+                  <th>Fecha Vencimiento</th>
                   <th>Proveedor</th>
                   <th>Número Proveedor</th>
                 </tr>
               </thead>
               <tbody id="inventarioTableBody">
                 <tr>
-                  <td colspan="9" class="inventario-empty">Cargando productos...</td>
+                  <td colspan="10" class="inventario-empty">Cargando productos...</td>
                 </tr>
               </tbody>
             </table>
@@ -112,7 +116,8 @@ function obtenerElementosInventario() {
     btnCancelarInventario: document.getElementById("btnCancelarInventario"),
     inventarioMessage: document.getElementById("inventarioMessage"),
     txtBuscarInventario: document.getElementById("txtBuscarInventario"),
-    inventarioTableBody: document.getElementById("inventarioTableBody")
+    inventarioTableBody: document.getElementById("inventarioTableBody"),
+    dtpFechaVencimiento: document.getElementById("dtpFechaVencimiento"),
   };
 }
 
@@ -170,7 +175,8 @@ function limpiarCamposInventario() {
     txtProveedor,
     txtNumeroProveedor,
     btnActualizarInventario,
-    btnGuardarInventario
+    btnGuardarInventario,
+    dtpFechaVencimiento
   } = obtenerElementosInventario();
 
   productoIdActual = null;
@@ -183,7 +189,7 @@ function limpiarCamposInventario() {
   dtpFechaCompra.value = obtenerFechaActualLocalInput();
   txtProveedor.value = "";
   txtNumeroProveedor.value = "+505";
-
+dtpFechaVencimiento.value = "";
   btnActualizarInventario.disabled = true;
   btnGuardarInventario.disabled = false;
 
@@ -256,7 +262,8 @@ function obtenerDatosFormularioInventario() {
     txtStock,
     dtpFechaCompra,
     txtProveedor,
-    txtNumeroProveedor
+    txtNumeroProveedor,
+    dtpFechaVencimiento
   } = obtenerElementosInventario();
 
   return {
@@ -267,7 +274,8 @@ function obtenerDatosFormularioInventario() {
     stock: txtStock.value,
     fechaDeCompra: dtpFechaCompra.value,
     proveedor: txtProveedor.value,
-    numeroProveedor: txtNumeroProveedor.value
+    numeroProveedor: txtNumeroProveedor.value,
+    fechaVencimiento: dtpFechaVencimiento.value
   };
 }
 
@@ -276,7 +284,7 @@ async function cargarProductos() {
 
   inventarioTableBody.innerHTML = `
     <tr>
-      <td colspan="9" class="inventario-empty">Cargando productos...</td>
+      <td colspan="10" class="inventario-empty">Cargando productos...</td>
     </tr>
   `;
 
@@ -293,7 +301,7 @@ async function cargarProductos() {
   } catch (error) {
     inventarioTableBody.innerHTML = `
       <tr>
-        <td colspan="9" class="inventario-empty">Error al cargar productos.</td>
+        <td colspan="10" class="inventario-empty">Error al cargar productos.</td>
       </tr>
     `;
     mostrarMensajeInventario("Error al cargar los productos.", "error");
@@ -306,7 +314,7 @@ function renderTablaInventario(productos) {
   if (!productos.length) {
     inventarioTableBody.innerHTML = `
       <tr>
-        <td colspan="9" class="inventario-empty">No hay productos registrados.</td>
+        <td colspan="10" class="inventario-empty">No hay productos registrados.</td>
       </tr>
     `;
     return;
@@ -321,6 +329,7 @@ function renderTablaInventario(productos) {
       <td>${producto.precio ?? ""}</td>
       <td>${producto.stock ?? ""}</td>
       <td>${formatearFechaTabla(producto.fechaDeCompra)}</td>
+      <td>${producto.fechaVencimiento ? String(producto.fechaVencimiento).slice(0, 10) : ""}</td>
       <td>${producto.proveedor ?? ""}</td>
       <td>${normalizarNumeroProveedor(producto.numeroProveedor ?? "")}</td>
     </tr>
@@ -405,7 +414,8 @@ function seleccionarProductoDesdeFila(fila) {
     txtProveedor,
     txtNumeroProveedor,
     btnActualizarInventario,
-    btnGuardarInventario
+    btnGuardarInventario,
+    dtpFechaVencimiento
   } = obtenerElementosInventario();
 
   productoIdActual = producto.idproducto;
@@ -418,7 +428,9 @@ function seleccionarProductoDesdeFila(fila) {
   dtpFechaCompra.value = convertirFechaParaInput(producto.fechaDeCompra);
   txtProveedor.value = producto.proveedor || "";
   txtNumeroProveedor.value = normalizarNumeroProveedor(producto.numeroProveedor || "");
-
+dtpFechaVencimiento.value = producto.fechaVencimiento
+  ? String(producto.fechaVencimiento).slice(0, 10)
+  : "";
   btnActualizarInventario.disabled = false;
   btnGuardarInventario.disabled = true;
 
@@ -452,6 +464,8 @@ async function guardarProducto() {
 
     mostrarMensajeInventario(resultado.mensaje || "Producto insertado correctamente.", "ok");
  limpiarCamposInventario();
+await cargarProductos();
+mostrarAlertaStockBajo();
 await cargarProductos();
 mostrarAlertaStockBajo();
   } catch (error) {
@@ -631,4 +645,58 @@ mostrarAlertaStockBajo();
   });
 
   txtBuscarInventario.addEventListener("input", filtrarInventario);
+}
+
+function mostrarAlertaProductosPorVencer() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const limite = new Date(hoy);
+  limite.setDate(limite.getDate() + 30);
+
+  const productosPorVencer = productosOriginales.filter((producto) => {
+    if (!producto.fechaVencimiento) return false;
+
+    const fecha = new Date(producto.fechaVencimiento);
+    fecha.setHours(0, 0, 0, 0);
+
+    return fecha >= hoy && fecha <= limite;
+  });
+
+  if (productosPorVencer.length === 0) return;
+
+  const alertaAnterior = document.getElementById("vencimientoAlertOverlay");
+  if (alertaAnterior) alertaAnterior.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "stock-alert-overlay";
+  overlay.id = "vencimientoAlertOverlay";
+
+  overlay.innerHTML = `
+    <div class="stock-alert-modal">
+      <div class="stock-alert-header">
+        <h3>Alerta de productos próximos a vencer</h3>
+        <button type="button" class="stock-alert-close" id="cerrarVencimientoAlert">×</button>
+      </div>
+
+      <p class="stock-alert-text">
+        Los siguientes productos vencen dentro de los próximos 30 días:
+      </p>
+
+      <div class="stock-alert-list">
+        ${productosPorVencer.map((producto) => `
+          <div class="stock-alert-item">
+            <strong>${producto.nombreProducto || "Producto sin nombre"}</strong>
+            <span>Vence: ${String(producto.fechaVencimiento).slice(0, 10)}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("cerrarVencimientoAlert").addEventListener("click", () => {
+    overlay.remove();
+  });
 }
