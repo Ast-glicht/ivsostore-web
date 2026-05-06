@@ -28,6 +28,8 @@ const ventasRoutes = require('./routes/ventasRoutes');
 const reportesRoutes = require('./routes/reportesRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const movimientosRoutes = require('./routes/movimientosRoutes');
+const movimientosRoutes = require('./routes/movimientosRoutes');
+app.use('/api/movimientos', movimientosRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/inventario', inventarioRoutes);

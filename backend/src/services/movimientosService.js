@@ -35,7 +35,7 @@ async function registrarMovimiento(data) {
     tipoMovimiento,
     cantidad: cantidadNumero,
     motivo: motivo?.trim() || '',
-    usuario: usuario?.trim() || ''
+    usuario: usuario?.trim() || 'Sistema'
   });
 
   return {
