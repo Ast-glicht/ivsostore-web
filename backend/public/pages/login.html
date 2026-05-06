@@ -41,7 +41,9 @@
           <button type="submit" id="btnAcceder" class="btn btn-acceder">
             Acceder
           </button>
-
+<button type="button" class="forgot-password-btn" id="btnOlvideContrasena">
+  ¿Olvidaste tu contraseña?
+</button>
           <button type="button" id="btnSalir" class="btn btn-salir">
             Salir
           </button>
@@ -55,6 +57,29 @@
   </main>
 
   <script src="../js/modules/login/login.js"></script>
-  
+  <div class="recovery-overlay" id="recoveryOverlay">
+  <div class="recovery-modal">
+    <button type="button" class="recovery-close" id="btnCerrarRecuperacion">×</button>
+
+    <h2>Recuperar contraseña</h2>
+    <p>
+      Ingrese su usuario o correo registrado. El sistema generará un código y abrirá Gmail
+      para enviar la solicitud al gerente.
+    </p>
+
+    <label for="txtRecuperacionUsuario">Usuario o correo</label>
+    <input
+      type="text"
+      id="txtRecuperacionUsuario"
+      placeholder="Ejemplo: empleado1 o empleado1@gmail.com"
+    />
+
+    <button type="button" class="recovery-send-btn" id="btnEnviarRecuperacion">
+      Redactar correo al gerente
+    </button>
+
+    <p class="recovery-message" id="recoveryMessage"></p>
+  </div>
+</div>
 </body>
 </html>

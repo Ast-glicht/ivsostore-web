@@ -5,14 +5,131 @@ const btnSalir = document.getElementById("btnSalir");
 const loginForm = document.getElementById("loginForm");
 const mensajeEstado = document.getElementById("mensajeEstado");
 const lbBloqueoVisual = document.getElementById("lbBloqueoVisual");
-
+const API_RECUPERACION = "/api/recuperacion/solicitar";
 const API_LOGIN = "/api/auth/login";
 let intentosFallidos = 0;
 const LIMITE_INTENTOS = 5;
 let segundosRestantes = 60;
 let bloqueoInterval = null;
 let parpadeoColor = false;
+function obtenerElemento(id) {
+  return document.getElementById(id);
+}
 
+function mostrarMensajeRecuperacion(texto, tipo = "") {
+  const message = obtenerElemento("recoveryMessage");
+  if (!message) return;
+
+  message.textContent = texto;
+  message.className = "recovery-message";
+
+  if (tipo) {
+    message.classList.add(tipo);
+  }
+}
+
+function abrirModalRecuperacion() {
+  const overlay = obtenerElemento("recoveryOverlay");
+  const usuarioInput = obtenerElemento("txtRecuperacionUsuario");
+
+  if (!overlay) return;
+
+  overlay.classList.add("show");
+  mostrarMensajeRecuperacion("");
+
+  if (usuarioInput) {
+    usuarioInput.value = "";
+    setTimeout(() => usuarioInput.focus(), 100);
+  }
+}
+
+function cerrarModalRecuperacion() {
+  const overlay = obtenerElemento("recoveryOverlay");
+  if (!overlay) return;
+
+  overlay.classList.remove("show");
+}
+
+function construirUrlGmail({ correoGerente, asunto, cuerpo }) {
+  const base = "https://mail.google.com/mail/";
+
+  const params = new URLSearchParams({
+    view: "cm",
+    fs: "1",
+    to: correoGerente,
+    su: asunto,
+    body: cuerpo
+  });
+
+  return `${base}?${params.toString()}`;
+}
+
+async function solicitarRecuperacionContrasena() {
+  const input = obtenerElemento("txtRecuperacionUsuario");
+  const usuarioOCorreo = input?.value.trim();
+
+  if (!usuarioOCorreo) {
+    mostrarMensajeRecuperacion("Ingrese su usuario o correo registrado.", "error");
+    return;
+  }
+
+  try {
+    mostrarMensajeRecuperacion("Generando solicitud...", "");
+
+    const response = await fetch(API_RECUPERACION, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ usuarioOCorreo })
+    });
+
+    const resultado = await response.json();
+
+    if (!resultado.ok) {
+      mostrarMensajeRecuperacion(resultado.mensaje || "No se pudo generar la solicitud.", "error");
+      return;
+    }
+
+    const gmailUrl = construirUrlGmail(resultado.data);
+
+    mostrarMensajeRecuperacion(
+      `Código generado: ${resultado.data.codigo}. Se abrirá Gmail para enviar la solicitud.`,
+      "ok"
+    );
+
+    window.open(gmailUrl, "_blank");
+  } catch (error) {
+    mostrarMensajeRecuperacion("Error al conectar con el servidor.", "error");
+  }
+}
+
+function inicializarRecuperacionContrasena() {
+  const btnOlvide = obtenerElemento("btnOlvideContrasena");
+  const btnCerrar = obtenerElemento("btnCerrarRecuperacion");
+  const btnEnviar = obtenerElemento("btnEnviarRecuperacion");
+  const overlay = obtenerElemento("recoveryOverlay");
+
+  if (btnOlvide) {
+    btnOlvide.addEventListener("click", abrirModalRecuperacion);
+  }
+
+  if (btnCerrar) {
+    btnCerrar.addEventListener("click", cerrarModalRecuperacion);
+  }
+
+  if (btnEnviar) {
+    btnEnviar.addEventListener("click", solicitarRecuperacionContrasena);
+  }
+
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        cerrarModalRecuperacion();
+      }
+    });
+  }
+}
 function limpiarEstadosCampos() {
   txtUsuario.style.borderColor = "rgba(255, 255, 255, 0.08)";
   txtContrasena.style.borderColor = "rgba(255, 255, 255, 0.08)";
@@ -204,4 +321,5 @@ window.addEventListener("load", () => {
   lbBloqueoVisual.classList.add("oculto");
   mostrarMensaje("");
   limpiarEstadosCampos();
+  inicializarRecuperacionContrasena();
 });
