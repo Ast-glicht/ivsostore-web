@@ -4,9 +4,7 @@ async function obtenerClientes() {
   const pool = await getConnection();
 
   const result = await pool.request().query(`
-    SELECT
-      IDCliente AS idCliente,
-      Nombre AS nombre
+    SELECT IDCliente AS idCliente, Nombre AS nombre
     FROM Clientes
     ORDER BY Nombre
   `);
@@ -18,9 +16,7 @@ async function obtenerVendedores() {
   const pool = await getConnection();
 
   const result = await pool.request().query(`
-    SELECT
-      IDVendedor AS idVendedor,
-      NombreVendedor AS nombreVendedor
+    SELECT IDVendedor AS idVendedor, NombreVendedor AS nombreVendedor
     FROM Vendedores
     ORDER BY NombreVendedor
   `);
@@ -45,13 +41,120 @@ async function obtenerInventarioDisponible() {
   return result.recordset;
 }
 
-async function crearPedidoConDetalle({ idCliente, idVendedor, estado, fechaPedido, detalle, montoTotal }) {
+async function obtenerNombreCliente(idCliente, transaction) {
+  const request = new sql.Request(transaction);
+  request.input('idCliente', sql.Int, idCliente);
+
+  const result = await request.query(`
+    SELECT Nombre
+    FROM Clientes
+    WHERE IDCliente = @idCliente
+  `);
+
+  return result.recordset[0]?.Nombre || null;
+}
+
+async function obtenerProductoInfo(idProducto, transaction) {
+  const request = new sql.Request(transaction);
+  request.input('idProducto', sql.Int, idProducto);
+
+  const result = await request.query(`
+    SELECT
+      IDproducto AS idProducto,
+      NombreProducto AS nombreProducto,
+      Codigo AS codigoProducto,
+      Precio AS precio,
+      Stock AS stock
+    FROM inventario
+    WHERE IDproducto = @idProducto
+  `);
+
+  return result.recordset[0] || null;
+}
+
+async function registrarMovimientoTransaccion({
+  transaction,
+  idproducto,
+  tipoMovimiento,
+  cantidad,
+  motivo,
+  usuario = 'Sistema',
+  idPedido = null,
+  cliente = null,
+  precioUnitario = null,
+  precioVenta = null,
+  stockAnterior = null,
+  stockNuevo = null,
+  codigoProducto = null
+}) {
+  const request = new sql.Request(transaction);
+
+  request.input('idproducto', sql.Int, idproducto);
+  request.input('tipoMovimiento', sql.VarChar, tipoMovimiento);
+  request.input('cantidad', sql.Int, cantidad);
+  request.input('motivo', sql.VarChar, motivo || null);
+  request.input('usuario', sql.VarChar, usuario || 'Sistema');
+  request.input('idPedido', sql.Int, idPedido);
+  request.input('cliente', sql.VarChar, cliente);
+  request.input('precioUnitario', sql.Decimal(18, 2), precioUnitario);
+  request.input('precioVenta', sql.Decimal(18, 2), precioVenta);
+  request.input('stockAnterior', sql.Int, stockAnterior);
+  request.input('stockNuevo', sql.Int, stockNuevo);
+  request.input('codigoProducto', sql.VarChar, codigoProducto);
+
+  await request.query(`
+    INSERT INTO historial_movimientos_productos
+    (
+      IDproducto,
+      TipoMovimiento,
+      Cantidad,
+      Motivo,
+      FechaMovimiento,
+      Usuario,
+      IDpedido,
+      Cliente,
+      PrecioUnitario,
+      PrecioVenta,
+      StockAnterior,
+      StockNuevo,
+      CodigoProducto
+    )
+    VALUES
+    (
+      @idproducto,
+      @tipoMovimiento,
+      @cantidad,
+      @motivo,
+      GETDATE(),
+      @usuario,
+      @idPedido,
+      @cliente,
+      @precioUnitario,
+      @precioVenta,
+      @stockAnterior,
+      @stockNuevo,
+      @codigoProducto
+    )
+  `);
+}
+
+async function crearPedidoConDetalle({
+  idCliente,
+  idVendedor,
+  estado,
+  fechaPedido,
+  detalle,
+  montoTotal,
+  usuario = 'Sistema'
+}) {
   const pool = await getConnection();
   const transaction = new sql.Transaction(pool);
 
   await transaction.begin();
 
   try {
+    const cliente = await obtenerNombreCliente(idCliente, transaction);
+
     const requestPedido = new sql.Request(transaction);
     requestPedido.input('Clienteid', sql.Int, idCliente);
     requestPedido.input('IdVendedor', sql.Int, idVendedor);
@@ -60,10 +163,28 @@ async function crearPedidoConDetalle({ idCliente, idVendedor, estado, fechaPedid
     requestPedido.input('MontoTotal', sql.Decimal(18, 2), montoTotal);
 
     const resultPedido = await requestPedido.execute('sp_crear_pedido_basico');
-    const idPedido = Number(resultPedido.recordset?.[0]?.IDpedido ?? resultPedido.recordset?.[0]?.idPedido ?? resultPedido.returnValue ?? resultPedido.output?.IDpedido);
+
+    const idPedido = Number(
+      resultPedido.recordset?.[0]?.IDpedido ??
+      resultPedido.recordset?.[0]?.idPedido ??
+      resultPedido.returnValue ??
+      resultPedido.output?.IDpedido
+    );
 
     if (!idPedido) {
       throw new Error('No se pudo obtener el ID del pedido creado.');
+    }
+
+    const productosAntes = new Map();
+
+    for (const item of detalle) {
+      const productoInfo = await obtenerProductoInfo(item.idProducto, transaction);
+
+      productosAntes.set(Number(item.idProducto), {
+        stockAnterior: Number(productoInfo?.stock || 0),
+        codigoProducto: productoInfo?.codigoProducto || '',
+        precioUnitario: Number(item.precioUnitario ?? productoInfo?.precio ?? 0)
+      });
     }
 
     const tvp = new sql.Table('dbo.ProductoPedido');
@@ -80,6 +201,29 @@ async function crearPedidoConDetalle({ idCliente, idVendedor, estado, fechaPedid
     requestDetalle.input('Productos', tvp);
 
     await requestDetalle.execute('sp_crear_pedido_con_detalle');
+
+    for (const item of detalle) {
+      const idProducto = Number(item.idProducto);
+      const cantidad = Number(item.cantidad);
+      const antes = productosAntes.get(idProducto);
+      const productoDespues = await obtenerProductoInfo(idProducto, transaction);
+
+      await registrarMovimientoTransaccion({
+        transaction,
+        idproducto: idProducto,
+        tipoMovimiento: 'Salida',
+        cantidad,
+        motivo: `Se realizó esta salida al vender estos productos el ${new Date().toLocaleString('es-NI')}.`,
+        usuario,
+        idPedido,
+        cliente,
+        precioUnitario: Number(item.precioUnitario ?? antes?.precioUnitario ?? 0),
+        precioVenta: Number(item.precioVenta || 0),
+        stockAnterior: antes?.stockAnterior ?? null,
+        stockNuevo: Number(productoDespues?.stock ?? 0),
+        codigoProducto: antes?.codigoProducto || productoDespues?.codigoProducto || ''
+      });
+    }
 
     await transaction.commit();
     return idPedido;
@@ -146,6 +290,7 @@ async function obtenerDetallePedido(idPedido, transaction = null) {
     SELECT
       dp.IDproducto AS idProducto,
       i.NombreProducto AS producto,
+      i.Codigo AS codigoProducto,
       dp.Cantidad AS cantidad,
       dp.PrecioUnitario AS precioUnitario,
       dp.precioventa AS precioVenta,
@@ -184,6 +329,8 @@ async function obtenerStockProducto(idProducto, transaction) {
 }
 
 async function ajustarStockProducto(idProducto, cantidadDelta, transaction) {
+  const stockAnterior = await obtenerStockProducto(idProducto, transaction);
+
   const request = new sql.Request(transaction);
   request.input('idProducto', sql.Int, idProducto);
   request.input('cantidadDelta', sql.Int, cantidadDelta);
@@ -193,6 +340,13 @@ async function ajustarStockProducto(idProducto, cantidadDelta, transaction) {
     SET Stock = Stock + @cantidadDelta
     WHERE IDproducto = @idProducto
   `);
+
+  const stockNuevo = await obtenerStockProducto(idProducto, transaction);
+
+  return {
+    stockAnterior,
+    stockNuevo
+  };
 }
 
 async function eliminarDetallePedido(idPedido, transaction) {
@@ -241,7 +395,13 @@ async function actualizarPedidoCabecera({ idPedido, fechaPedido, estado }, trans
   `);
 }
 
-async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle }) {
+async function actualizarPedidoCompleto({
+  idPedido,
+  fechaPedido,
+  estado,
+  detalle,
+  usuario = 'Sistema'
+}) {
   const pool = await getConnection();
   const transaction = new sql.Transaction(pool);
 
@@ -262,7 +422,8 @@ async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle
         idProducto: Number(item.idProducto),
         cantidad: Number(item.cantidad),
         precioVenta: Number(item.precioVenta),
-        precioUnitario: Number(item.precioUnitario)
+        precioUnitario: Number(item.precioUnitario),
+        codigoProducto: item.codigoProducto
       });
     }
 
@@ -278,15 +439,50 @@ async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle
 
     if (estadoAnterior !== 'Cancelado' && estado === 'Cancelado') {
       for (const item of detalleAnterior) {
-        await ajustarStockProducto(Number(item.idProducto), Number(item.cantidad), transaction);
+        const cambio = await ajustarStockProducto(Number(item.idProducto), Number(item.cantidad), transaction);
+
+        await registrarMovimientoTransaccion({
+          transaction,
+          idproducto: Number(item.idProducto),
+          tipoMovimiento: 'Entrada',
+          cantidad: Number(item.cantidad),
+          motivo: `Se realizó esta entrada cuando se devolvió o canceló este pedido el ${new Date().toLocaleString('es-NI')}.`,
+          usuario,
+          idPedido,
+          cliente: pedidoActual.cliente,
+          precioUnitario: Number(item.precioUnitario || 0),
+          precioVenta: Number(item.precioVenta || 0),
+          stockAnterior: cambio.stockAnterior,
+          stockNuevo: cambio.stockNuevo,
+          codigoProducto: item.codigoProducto
+        });
       }
     } else if (estadoAnterior === 'Cancelado' && estado !== 'Cancelado') {
       for (const item of detalle) {
         const stockReal = await obtenerStockProducto(item.idProducto, transaction);
+
         if (item.cantidad > stockReal) {
           throw new Error(`No hay suficiente stock para el producto ${item.idProducto}. Disponible: ${stockReal}`);
         }
-        await ajustarStockProducto(item.idProducto, -item.cantidad, transaction);
+
+        const cambio = await ajustarStockProducto(item.idProducto, -item.cantidad, transaction);
+        const productoInfo = await obtenerProductoInfo(item.idProducto, transaction);
+
+        await registrarMovimientoTransaccion({
+          transaction,
+          idproducto: item.idProducto,
+          tipoMovimiento: 'Salida',
+          cantidad: item.cantidad,
+          motivo: `Se realizó esta salida al vender estos productos el ${new Date().toLocaleString('es-NI')}.`,
+          usuario,
+          idPedido,
+          cliente: pedidoActual.cliente,
+          precioUnitario: Number(item.precioUnitario || productoInfo?.precio || 0),
+          precioVenta: Number(item.precioVenta || 0),
+          stockAnterior: cambio.stockAnterior,
+          stockNuevo: cambio.stockNuevo,
+          codigoProducto: productoInfo?.codigoProducto || ''
+        });
       }
     } else {
       for (const itemAnterior of detalleAnterior) {
@@ -295,7 +491,23 @@ async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle
         const itemNuevo = mapNuevo.get(id);
 
         if (!itemNuevo) {
-          await ajustarStockProducto(id, cantidadAnterior, transaction);
+          const cambio = await ajustarStockProducto(id, cantidadAnterior, transaction);
+
+          await registrarMovimientoTransaccion({
+            transaction,
+            idproducto: id,
+            tipoMovimiento: 'Entrada',
+            cantidad: cantidadAnterior,
+            motivo: `Se realizó esta entrada cuando se devolvió o canceló este pedido el ${new Date().toLocaleString('es-NI')}.`,
+            usuario,
+            idPedido,
+            cliente: pedidoActual.cliente,
+            precioUnitario: Number(itemAnterior.precioUnitario || 0),
+            precioVenta: Number(itemAnterior.precioVenta || 0),
+            stockAnterior: cambio.stockAnterior,
+            stockNuevo: cambio.stockNuevo,
+            codigoProducto: itemAnterior.codigoProducto
+          });
         } else {
           const cantidadNueva = Number(itemNuevo.cantidad);
 
@@ -307,10 +519,42 @@ async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle
               throw new Error(`Stock insuficiente para el producto ${id}. Disponible: ${stockReal}`);
             }
 
-            await ajustarStockProducto(id, -diferencia, transaction);
+            const cambio = await ajustarStockProducto(id, -diferencia, transaction);
+
+            await registrarMovimientoTransaccion({
+              transaction,
+              idproducto: id,
+              tipoMovimiento: 'Salida',
+              cantidad: diferencia,
+              motivo: `Se realizó esta salida al vender estos productos el ${new Date().toLocaleString('es-NI')}.`,
+              usuario,
+              idPedido,
+              cliente: pedidoActual.cliente,
+              precioUnitario: Number(itemNuevo.precioUnitario || 0),
+              precioVenta: Number(itemNuevo.precioVenta || 0),
+              stockAnterior: cambio.stockAnterior,
+              stockNuevo: cambio.stockNuevo,
+              codigoProducto: itemAnterior.codigoProducto
+            });
           } else if (cantidadNueva < cantidadAnterior) {
             const diferencia = cantidadAnterior - cantidadNueva;
-            await ajustarStockProducto(id, diferencia, transaction);
+            const cambio = await ajustarStockProducto(id, diferencia, transaction);
+
+            await registrarMovimientoTransaccion({
+              transaction,
+              idproducto: id,
+              tipoMovimiento: 'Entrada',
+              cantidad: diferencia,
+              motivo: `Se realizó esta entrada cuando se devolvió o canceló este pedido el ${new Date().toLocaleString('es-NI')}.`,
+              usuario,
+              idPedido,
+              cliente: pedidoActual.cliente,
+              precioUnitario: Number(itemNuevo.precioUnitario || 0),
+              precioVenta: Number(itemNuevo.precioVenta || 0),
+              stockAnterior: cambio.stockAnterior,
+              stockNuevo: cambio.stockNuevo,
+              codigoProducto: itemAnterior.codigoProducto
+            });
           }
         }
       }
@@ -321,11 +565,29 @@ async function actualizarPedidoCompleto({ idPedido, fechaPedido, estado, detalle
 
         if (!yaExistia) {
           const stockReal = await obtenerStockProducto(id, transaction);
+
           if (itemNuevo.cantidad > stockReal) {
             throw new Error(`Stock insuficiente para el producto ${id}. Disponible: ${stockReal}`);
           }
 
-          await ajustarStockProducto(id, -itemNuevo.cantidad, transaction);
+          const cambio = await ajustarStockProducto(id, -itemNuevo.cantidad, transaction);
+          const productoInfo = await obtenerProductoInfo(id, transaction);
+
+          await registrarMovimientoTransaccion({
+            transaction,
+            idproducto: id,
+            tipoMovimiento: 'Salida',
+            cantidad: Number(itemNuevo.cantidad),
+            motivo: `Se realizó esta salida al vender estos productos el ${new Date().toLocaleString('es-NI')}.`,
+            usuario,
+            idPedido,
+            cliente: pedidoActual.cliente,
+            precioUnitario: Number(itemNuevo.precioUnitario || productoInfo?.precio || 0),
+            precioVenta: Number(itemNuevo.precioVenta || 0),
+            stockAnterior: cambio.stockAnterior,
+            stockNuevo: cambio.stockNuevo,
+            codigoProducto: productoInfo?.codigoProducto || ''
+          });
         }
       }
     }

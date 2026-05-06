@@ -100,8 +100,13 @@ await movimientosRepository.registrarMovimiento({
   idproducto: productoRegistrado.idproducto,
   tipoMovimiento: 'Entrada',
   cantidad: Number(data.stock),
-  motivo: 'Registro inicial del producto',
-  usuario: data.usuario || 'Sistema'
+  motivo: `Se realizó esta entrada al registrar el producto el ${new Date().toLocaleString('es-NI')}.`,
+  usuario: data.usuario || 'Sistema',
+  codigoProducto: data.codigo.trim(),
+  precioUnitario: Number(data.precio),
+  precioVenta: Number(data.precio),
+  stockAnterior: 0,
+  stockNuevo: Number(data.stock)
 });
 
   return {

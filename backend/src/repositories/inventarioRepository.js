@@ -73,6 +73,8 @@ async function registrarProducto({
       SELECT TOP 1
         IDproducto AS idproducto,
         NombreProducto AS nombreProducto,
+        Codigo AS codigoProducto,
+        Precio AS precio,
         Stock AS stock
       FROM inventario
       WHERE Codigo = @codigo
@@ -94,6 +96,19 @@ async function actualizarProducto(id, {
   fechaVencimiento
 }) {
   const pool = await getConnection();
+
+  const stockAnteriorResult = await pool.request()
+    .input('id', sql.Int, id)
+    .query(`
+      SELECT 
+        Stock,
+        Codigo,
+        Precio
+      FROM inventario
+      WHERE IDproducto = @id
+    `);
+
+  const stockAnterior = Number(stockAnteriorResult.recordset[0]?.Stock || 0);
 
   await pool.request()
     .input('idproducto', sql.Int, id)
@@ -117,6 +132,15 @@ async function actualizarProducto(id, {
         FechaVencimiento = @fechaVencimiento
       WHERE IDproducto = @id
     `);
+
+  return {
+    idproducto: Number(id),
+    stockAnterior,
+    stockNuevo: Number(stock),
+    diferencia: Number(stock) - stockAnterior,
+    codigoProducto: codigo,
+    precio: Number(precio)
+  };
 }
 
 module.exports = {

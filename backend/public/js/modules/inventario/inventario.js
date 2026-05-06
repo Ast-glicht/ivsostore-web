@@ -766,27 +766,33 @@ function abrirModalHistorialMovimientos() {
         <p id="movimientoMessage" class="inventario-message"></p>
       </form>
 
-      <div class="inventario-table-wrapper historial-table-wrapper">
-        <table class="inventario-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Producto</th>
-              <th>Tipo</th>
-              <th>Cantidad</th>
-              <th>Motivo</th>
-              <th>Fecha</th>
-              <th>Usuario</th>
-            </tr>
-          </thead>
-          <tbody id="movimientosTableBody">
-            <tr>
-              <td colspan="7" class="inventario-empty">Cargando historial...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+     <div class="inventario-table-wrapper historial-table-wrapper">
+  <table class="inventario-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Producto</th>
+        <th>Código</th>
+        <th>Pedido</th>
+        <th>Cliente</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Precio Venta</th>
+        <th>Stock Antes</th>
+        <th>Stock Después</th>
+        <th>Motivo</th>
+        <th>Fecha</th>
+        <th>Usuario</th>
+      </tr>
+    </thead>
+    <tbody id="movimientosTableBody">
+      <tr>
+        <td colspan="14" class="inventario-empty">Cargando historial...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
   `;
 
   document.body.appendChild(overlay);
@@ -872,17 +878,24 @@ async function cargarMovimientos() {
       return;
     }
 
-    movimientosTableBody.innerHTML = movimientos.map((mov) => `
-      <tr>
-        <td>${mov.idmovimiento ?? ""}</td>
-        <td>${mov.nombreProducto ?? ""}</td>
-        <td>${mov.tipoMovimiento ?? ""}</td>
-        <td>${mov.cantidad ?? ""}</td>
-        <td>${mov.motivo ?? ""}</td>
-        <td>${formatearFechaMovimiento(mov.fechaMovimiento)}</td>
-        <td>${mov.usuario ?? ""}</td>
-      </tr>
-    `).join("");
+   movimientosTableBody.innerHTML = movimientos.map((mov) => `
+  <tr>
+    <td>${mov.idmovimiento ?? ""}</td>
+    <td>${mov.tipoMovimiento ?? ""}</td>
+    <td>${mov.nombreProducto ?? ""}</td>
+    <td>${mov.codigoProducto ?? ""}</td>
+    <td>${mov.idPedido ?? ""}</td>
+    <td>${mov.cliente ?? ""}</td>
+    <td>${mov.cantidad ?? ""}</td>
+    <td>${mov.precioUnitario ?? ""}</td>
+    <td>${mov.precioVenta ?? ""}</td>
+    <td>${mov.stockAnterior ?? ""}</td>
+    <td>${mov.stockNuevo ?? ""}</td>
+    <td>${mov.motivo ?? ""}</td>
+    <td>${formatearFechaMovimiento(mov.fechaMovimiento)}</td>
+    <td>${mov.usuario ?? ""}</td>
+  </tr>
+`).join("");
   } catch (error) {
     movimientosTableBody.innerHTML = `
       <tr>

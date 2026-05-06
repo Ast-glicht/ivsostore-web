@@ -17,25 +17,6 @@ async function listar(req, res) {
   }
 }
 
-async function registrar(req, res) {
-  try {
-    const resultado = await movimientosService.registrarMovimiento(req.body);
-
-    if (!resultado.ok) {
-      return res.status(400).json(resultado);
-    }
-
-    res.status(201).json(resultado);
-  } catch (error) {
-    res.status(500).json({
-      ok: false,
-      mensaje: 'Error al registrar el movimiento.',
-      error: error.message
-    });
-  }
-}
-
 module.exports = {
-  listar,
-  registrar
+  listar
 };
