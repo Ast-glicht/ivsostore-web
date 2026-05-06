@@ -1,5 +1,5 @@
 const inventarioRepository = require('../repositories/inventarioRepository');
-
+const movimientosRepository = require('../repositories/movimientosRepository');
 function validarTelefonoProveedor(numeroProveedor) {
   if (!numeroProveedor) return false;
 
@@ -85,16 +85,24 @@ if (codigoExiste) {
     mensaje: 'Ya existe un producto registrado con este código.'
   };
 }
-  await inventarioRepository.registrarProducto({
-    nombreProducto: data.nombreProducto.trim(),
-    descripcion: data.descripcion.trim(),
-    codigo: data.codigo.trim(),
-    precio: Number(data.precio),
-    stock: Number(data.stock),
-    proveedor: data.proveedor.trim(),
-    numeroProveedor: data.numeroProveedor.trim(),
-    fechaVencimiento: data.fechaVencimiento || null
-  });
+const productoRegistrado = await inventarioRepository.registrarProducto({
+  nombreProducto: data.nombreProducto.trim(),
+  descripcion: data.descripcion.trim(),
+  codigo: data.codigo.trim(),
+  precio: Number(data.precio),
+  stock: Number(data.stock),
+  proveedor: data.proveedor.trim(),
+  numeroProveedor: data.numeroProveedor.trim(),
+  fechaVencimiento: data.fechaVencimiento || null
+});
+
+await movimientosRepository.registrarMovimiento({
+  idproducto: productoRegistrado.idproducto,
+  tipoMovimiento: 'Entrada',
+  cantidad: Number(data.stock),
+  motivo: 'Registro inicial del producto',
+  usuario: data.usuario || 'Sistema'
+});
 
   return {
     ok: true,

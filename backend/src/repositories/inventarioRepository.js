@@ -66,6 +66,20 @@ async function registrarProducto({
     .input('numeroProveedor', sql.VarChar, numeroProveedor)
     .input('fechaVencimiento', sql.Date, fechaVencimiento || null)
     .execute('sp_registrar_producto');
+
+  const result = await pool.request()
+    .input('codigo', sql.VarChar, codigo)
+    .query(`
+      SELECT TOP 1
+        IDproducto AS idproducto,
+        NombreProducto AS nombreProducto,
+        Stock AS stock
+      FROM inventario
+      WHERE Codigo = @codigo
+      ORDER BY IDproducto DESC
+    `);
+
+  return result.recordset[0];
 }
 
 async function actualizarProducto(id, {

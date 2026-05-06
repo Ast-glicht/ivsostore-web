@@ -1,4 +1,5 @@
 const API_INVENTARIO = "/api/inventario";
+const API_MOVIMIENTOS = "/api/movimientos";
 let productosOriginales = [];
 let productoIdActual = null;
 
@@ -57,6 +58,9 @@ function renderInventarioView() {
               <button type="submit" class="btn-inventario btn-guardar-inv" id="btnGuardarInventario">Guardar</button>
               <button type="button" class="btn-inventario btn-actualizar-inv" id="btnActualizarInventario" disabled>Actualizar</button>
               <button type="button" class="btn-inventario btn-cancelar-inv" id="btnCancelarInventario">Cancelar</button>
+              <button type="button" class="btn-inventario btn-actualizar-inv" id="btnAbrirHistorial">
+  Ver historial
+</button>
             </div>
 
             <p id="inventarioMessage" class="inventario-message"></p>
@@ -118,6 +122,7 @@ function obtenerElementosInventario() {
     txtBuscarInventario: document.getElementById("txtBuscarInventario"),
     inventarioTableBody: document.getElementById("inventarioTableBody"),
     dtpFechaVencimiento: document.getElementById("dtpFechaVencimiento"),
+    btnAbrirHistorial: document.getElementById("btnAbrirHistorial"),
   };
 }
 
@@ -623,7 +628,8 @@ export async function initInventarioModule(panelPrincipal) {
     btnActualizarInventario,
     btnCancelarInventario,
     txtBuscarInventario,
-    dtpFechaCompra
+    dtpFechaCompra,
+    btnAbrirHistorial
   } = obtenerElementosInventario();
 
   dtpFechaCompra.value = obtenerFechaActualLocalInput();
@@ -645,6 +651,10 @@ mostrarAlertaProductosPorVencer();
     limpiarCamposInventario();
     renderTablaInventario(productosOriginales);
   });
+
+  btnAbrirHistorial.addEventListener("click", () => {
+  abrirModalHistorialMovimientos();
+});
 
   txtBuscarInventario.addEventListener("input", filtrarInventario);
 }
@@ -701,4 +711,239 @@ function mostrarAlertaProductosPorVencer() {
   document.getElementById("cerrarVencimientoAlert").addEventListener("click", () => {
     overlay.remove();
   });
+}
+
+function abrirModalHistorialMovimientos() {
+  const modalAnterior = document.getElementById("historialMovimientosOverlay");
+  if (modalAnterior) modalAnterior.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "stock-alert-overlay";
+  overlay.id = "historialMovimientosOverlay";
+
+  overlay.innerHTML = `
+    <div class="historial-modal">
+      <div class="stock-alert-header">
+        <h3>Historial de movimientos</h3>
+        <button type="button" class="stock-alert-close" id="cerrarHistorialMovimientos">×</button>
+      </div>
+
+      <form id="movimientoForm" class="inventario-form historial-form">
+        <div class="historial-grid">
+          <div class="inventario-row">
+            <label for="cmbProductoMovimiento">Producto</label>
+            <select id="cmbProductoMovimiento">
+              <option value="">Seleccione un producto</option>
+            </select>
+          </div>
+
+          <div class="inventario-row">
+            <label for="cmbTipoMovimiento">Tipo</label>
+            <select id="cmbTipoMovimiento">
+              <option value="">Seleccione tipo</option>
+              <option value="Entrada">Entrada</option>
+              <option value="Salida">Salida</option>
+            </select>
+          </div>
+
+          <div class="inventario-row">
+            <label for="txtCantidadMovimiento">Cantidad</label>
+            <input type="number" id="txtCantidadMovimiento" min="1" placeholder="Cantidad" />
+          </div>
+        </div>
+
+        <div class="inventario-row">
+          <label for="txtMotivoMovimiento">Motivo</label>
+          <textarea id="txtMotivoMovimiento" placeholder="Ingrese el motivo del movimiento"></textarea>
+        </div>
+
+        <div class="inventario-actions">
+          <button type="submit" class="btn-inventario btn-guardar-inv">
+            Registrar movimiento
+          </button>
+        </div>
+
+        <p id="movimientoMessage" class="inventario-message"></p>
+      </form>
+
+      <div class="inventario-table-wrapper historial-table-wrapper">
+        <table class="inventario-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Motivo</th>
+              <th>Fecha</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody id="movimientosTableBody">
+            <tr>
+              <td colspan="7" class="inventario-empty">Cargando historial...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("cerrarHistorialMovimientos").addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  cargarComboProductosMovimiento();
+  cargarMovimientos();
+
+  document.getElementById("movimientoForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await registrarMovimientoInventario();
+  });
+}
+
+function mostrarMensajeMovimiento(texto, tipo = "") {
+  const el = document.getElementById("movimientoMessage");
+  if (!el) return;
+
+  el.textContent = texto;
+  el.className = "inventario-message";
+
+  if (tipo) el.classList.add(tipo);
+}
+
+function cargarComboProductosMovimiento() {
+  const cmbProductoMovimiento = document.getElementById("cmbProductoMovimiento");
+  if (!cmbProductoMovimiento) return;
+
+  cmbProductoMovimiento.innerHTML = `<option value="">Seleccione un producto</option>`;
+
+  productosOriginales.forEach((producto) => {
+    const option = document.createElement("option");
+    option.value = producto.idproducto;
+    option.textContent = `${producto.nombreProducto} - Stock actual: ${producto.stock}`;
+    cmbProductoMovimiento.appendChild(option);
+  });
+}
+
+function formatearFechaMovimiento(fecha) {
+  if (!fecha) return "";
+
+  const d = new Date(fecha);
+  if (Number.isNaN(d.getTime())) return fecha;
+
+  return d.toLocaleString("es-NI", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+async function cargarMovimientos() {
+  const movimientosTableBody = document.getElementById("movimientosTableBody");
+  if (!movimientosTableBody) return;
+
+  movimientosTableBody.innerHTML = `
+    <tr>
+      <td colspan="7" class="inventario-empty">Cargando historial...</td>
+    </tr>
+  `;
+
+  try {
+    const response = await fetch(API_MOVIMIENTOS);
+    const resultado = await response.json();
+
+    if (!resultado.ok) {
+      throw new Error(resultado.mensaje || "No se pudo cargar el historial.");
+    }
+
+    const movimientos = resultado.data || [];
+
+    if (!movimientos.length) {
+      movimientosTableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="inventario-empty">No hay movimientos registrados.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    movimientosTableBody.innerHTML = movimientos.map((mov) => `
+      <tr>
+        <td>${mov.idmovimiento ?? ""}</td>
+        <td>${mov.nombreProducto ?? ""}</td>
+        <td>${mov.tipoMovimiento ?? ""}</td>
+        <td>${mov.cantidad ?? ""}</td>
+        <td>${mov.motivo ?? ""}</td>
+        <td>${formatearFechaMovimiento(mov.fechaMovimiento)}</td>
+        <td>${mov.usuario ?? ""}</td>
+      </tr>
+    `).join("");
+  } catch (error) {
+    movimientosTableBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="inventario-empty">Error al cargar historial.</td>
+      </tr>
+    `;
+  }
+}
+
+async function registrarMovimientoInventario() {
+  const cmbProductoMovimiento = document.getElementById("cmbProductoMovimiento");
+  const cmbTipoMovimiento = document.getElementById("cmbTipoMovimiento");
+  const txtCantidadMovimiento = document.getElementById("txtCantidadMovimiento");
+  const txtMotivoMovimiento = document.getElementById("txtMotivoMovimiento");
+
+  const idproducto = cmbProductoMovimiento.value;
+  const tipoMovimiento = cmbTipoMovimiento.value;
+  const cantidad = txtCantidadMovimiento.value;
+  const motivo = txtMotivoMovimiento.value;
+
+  if (!idproducto || !tipoMovimiento || !cantidad) {
+    mostrarMensajeMovimiento("Seleccione producto, tipo de movimiento y cantidad.", "error");
+    return;
+  }
+
+  if (Number(cantidad) <= 0) {
+    mostrarMensajeMovimiento("La cantidad debe ser mayor a 0.", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(API_MOVIMIENTOS, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        idproducto,
+        tipoMovimiento,
+        cantidad,
+        motivo,
+        usuario: sessionStorage.getItem("usuario") || "Sistema"
+      })
+    });
+
+    const resultado = await response.json();
+
+    if (!resultado.ok) {
+      mostrarMensajeMovimiento(resultado.mensaje || "No se pudo registrar el movimiento.", "error");
+      return;
+    }
+
+    mostrarMensajeMovimiento(resultado.mensaje || "Movimiento registrado correctamente.", "ok");
+
+    cmbProductoMovimiento.value = "";
+    cmbTipoMovimiento.value = "";
+    txtCantidadMovimiento.value = "";
+    txtMotivoMovimiento.value = "";
+
+    await cargarMovimientos();
+  } catch (error) {
+    mostrarMensajeMovimiento("Error al registrar el movimiento.", "error");
+  }
 }
