@@ -163,7 +163,7 @@ function validarFormularioUsuario(esActualizacion = false) {
     return "La contraseña es obligatoria al crear un usuario.";
   }
 
-  if (txtCorreoAdmin.value.trim() && !/^[^\\s@]+@gmail\\.com$/i.test(txtCorreoAdmin.value.trim())) {
+  if (txtCorreoAdmin.value.trim() && !/^[^\s@]+@gmail\.com$/i.test(txtCorreoAdmin.value.trim())) {
     return "El correo debe ser un correo Gmail válido.";
   }
 
