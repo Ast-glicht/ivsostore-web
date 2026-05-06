@@ -2,7 +2,7 @@ const ventasService = require('../services/ventasService');
 
 async function listarPedidos(req, res) {
   try {
-    const pedidos = await ventasService.obtenerPedidosVenta();
+    const pedidos = await ventasService.listarPedidos();
 
     res.json({
       ok: true,
@@ -11,15 +11,16 @@ async function listarPedidos(req, res) {
   } catch (error) {
     res.status(500).json({
       ok: false,
-      mensaje: 'Error cargando pedidos.',
+      mensaje: 'Error al cargar pedidos de venta.',
       error: error.message
     });
   }
 }
 
-async function listarProductosPedido(req, res) {
+async function obtenerProductosPedido(req, res) {
   try {
-    const resultado = await ventasService.obtenerProductosPedido(req.params.id);
+    const { idPedido } = req.params;
+    const resultado = await ventasService.obtenerProductosPedido(idPedido);
 
     if (!resultado.ok) {
       return res.status(400).json(resultado);
@@ -29,38 +30,18 @@ async function listarProductosPedido(req, res) {
   } catch (error) {
     res.status(500).json({
       ok: false,
-      mensaje: 'Error cargando productos del pedido.',
+      mensaje: 'Error al cargar productos del pedido.',
       error: error.message
     });
   }
 }
 
-async function generarFactura(req, res) {
-  try {
-    const { formaPago } = req.body;
-
-    const resultado = await ventasService.generarFacturaPedido(req.params.id, formaPago);
-
-    if (!resultado.ok) {
-      return res.status(400).json(resultado);
-    }
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${resultado.fileName}"`);
-    res.send(resultado.pdfBuffer);
-  } catch (error) {
-    res.status(500).json({
-      ok: false,
-      mensaje: 'Error al generar la factura.',
-      error: error.message
-    });
-  }
-}
 async function actualizarEstadoPedido(req, res) {
   try {
+    const { idPedido } = req.params;
     const { estado } = req.body;
 
-    const resultado = await ventasService.actualizarEstadoPedido(req.params.id, estado);
+    const resultado = await ventasService.actualizarEstadoPedido(idPedido, estado);
 
     if (!resultado.ok) {
       return res.status(400).json(resultado);
@@ -75,9 +56,52 @@ async function actualizarEstadoPedido(req, res) {
     });
   }
 }
+
+async function actualizarConfiguracionVenta(req, res) {
+  try {
+    const { idPedido } = req.params;
+
+    const resultado = await ventasService.actualizarConfiguracionVenta(idPedido, req.body);
+
+    if (!resultado.ok) {
+      return res.status(400).json(resultado);
+    }
+
+    res.json(resultado);
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error al aplicar descuento o moneda.',
+      error: error.message
+    });
+  }
+}
+
+async function obtenerFactura(req, res) {
+  try {
+    const { idPedido } = req.params;
+    const { formaPago } = req.query;
+
+    const resultado = await ventasService.obtenerFactura(idPedido, formaPago);
+
+    if (!resultado.ok) {
+      return res.status(400).json(resultado);
+    }
+
+    res.json(resultado);
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      mensaje: 'Error al obtener datos de factura.',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   listarPedidos,
-  listarProductosPedido,
-  generarFactura,
-  actualizarEstadoPedido
+  obtenerProductosPedido,
+  actualizarEstadoPedido,
+  actualizarConfiguracionVenta,
+  obtenerFactura
 };
