@@ -335,3 +335,24 @@
     grid-template-columns: 1fr;
   }
 }
+
+.historial-modal {
+  width: min(1200px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #ffffff, #fafffc);
+  border: 1px solid #d9e6df;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+  animation: modalInventarioIn 0.25s ease;
+}
+
+.historial-table-wrapper {
+  max-height: 620px;
+  overflow: auto;
+}
+
+.historial-table-wrapper .inventario-table {
+  min-width: 1450px;
+}

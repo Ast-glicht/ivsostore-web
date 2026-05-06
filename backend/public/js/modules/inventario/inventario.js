@@ -724,75 +724,42 @@ function abrirModalHistorialMovimientos() {
   overlay.innerHTML = `
     <div class="historial-modal">
       <div class="stock-alert-header">
-        <h3>Historial de movimientos</h3>
+        <h3>Historial de movimientos automáticos</h3>
         <button type="button" class="stock-alert-close" id="cerrarHistorialMovimientos">×</button>
       </div>
 
-      <form id="movimientoForm" class="inventario-form historial-form">
-        <div class="historial-grid">
-          <div class="inventario-row">
-            <label for="cmbProductoMovimiento">Producto</label>
-            <select id="cmbProductoMovimiento">
-              <option value="">Seleccione un producto</option>
-            </select>
-          </div>
+      <p class="stock-alert-text">
+        Este historial se genera automáticamente a partir de entradas de inventario, ventas, devoluciones y cancelaciones de pedidos.
+      </p>
 
-          <div class="inventario-row">
-            <label for="cmbTipoMovimiento">Tipo</label>
-            <select id="cmbTipoMovimiento">
-              <option value="">Seleccione tipo</option>
-              <option value="Entrada">Entrada</option>
-              <option value="Salida">Salida</option>
-            </select>
-          </div>
-
-          <div class="inventario-row">
-            <label for="txtCantidadMovimiento">Cantidad</label>
-            <input type="number" id="txtCantidadMovimiento" min="1" placeholder="Cantidad" />
-          </div>
-        </div>
-
-        <div class="inventario-row">
-          <label for="txtMotivoMovimiento">Motivo</label>
-          <textarea id="txtMotivoMovimiento" placeholder="Ingrese el motivo del movimiento"></textarea>
-        </div>
-
-        <div class="inventario-actions">
-          <button type="submit" class="btn-inventario btn-guardar-inv">
-            Registrar movimiento
-          </button>
-        </div>
-
-        <p id="movimientoMessage" class="inventario-message"></p>
-      </form>
-
-     <div class="inventario-table-wrapper historial-table-wrapper">
-  <table class="inventario-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Tipo</th>
-        <th>Producto</th>
-        <th>Código</th>
-        <th>Pedido</th>
-        <th>Cliente</th>
-        <th>Cantidad</th>
-        <th>Precio Unitario</th>
-        <th>Precio Venta</th>
-        <th>Stock Antes</th>
-        <th>Stock Después</th>
-        <th>Motivo</th>
-        <th>Fecha</th>
-        <th>Usuario</th>
-      </tr>
-    </thead>
-    <tbody id="movimientosTableBody">
-      <tr>
-        <td colspan="14" class="inventario-empty">Cargando historial...</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+      <div class="inventario-table-wrapper historial-table-wrapper">
+        <table class="inventario-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Producto</th>
+              <th>Código</th>
+              <th>Pedido</th>
+              <th>Cliente</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Precio Venta</th>
+              <th>Stock Antes</th>
+              <th>Stock Después</th>
+              <th>Motivo</th>
+              <th>Fecha</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody id="movimientosTableBody">
+            <tr>
+              <td colspan="14" class="inventario-empty">Cargando historial...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   `;
 
   document.body.appendChild(overlay);
@@ -801,13 +768,7 @@ function abrirModalHistorialMovimientos() {
     overlay.remove();
   });
 
-  cargarComboProductosMovimiento();
   cargarMovimientos();
-
-  document.getElementById("movimientoForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    await registrarMovimientoInventario();
-  });
 }
 
 function mostrarMensajeMovimiento(texto, tipo = "") {
@@ -820,19 +781,6 @@ function mostrarMensajeMovimiento(texto, tipo = "") {
   if (tipo) el.classList.add(tipo);
 }
 
-function cargarComboProductosMovimiento() {
-  const cmbProductoMovimiento = document.getElementById("cmbProductoMovimiento");
-  if (!cmbProductoMovimiento) return;
-
-  cmbProductoMovimiento.innerHTML = `<option value="">Seleccione un producto</option>`;
-
-  productosOriginales.forEach((producto) => {
-    const option = document.createElement("option");
-    option.value = producto.idproducto;
-    option.textContent = `${producto.nombreProducto} - Stock actual: ${producto.stock}`;
-    cmbProductoMovimiento.appendChild(option);
-  });
-}
 
 function formatearFechaMovimiento(fecha) {
   if (!fecha) return "";
@@ -855,7 +803,7 @@ async function cargarMovimientos() {
 
   movimientosTableBody.innerHTML = `
     <tr>
-      <td colspan="7" class="inventario-empty">Cargando historial...</td>
+      <td colspan="14" class="inventario-empty">Cargando historial...</td>
     </tr>
   `;
 
@@ -872,91 +820,35 @@ async function cargarMovimientos() {
     if (!movimientos.length) {
       movimientosTableBody.innerHTML = `
         <tr>
-          <td colspan="7" class="inventario-empty">No hay movimientos registrados.</td>
+          <td colspan="14" class="inventario-empty">No hay movimientos registrados.</td>
         </tr>
       `;
       return;
     }
 
-   movimientosTableBody.innerHTML = movimientos.map((mov) => `
-  <tr>
-    <td>${mov.idmovimiento ?? ""}</td>
-    <td>${mov.tipoMovimiento ?? ""}</td>
-    <td>${mov.nombreProducto ?? ""}</td>
-    <td>${mov.codigoProducto ?? ""}</td>
-    <td>${mov.idPedido ?? ""}</td>
-    <td>${mov.cliente ?? ""}</td>
-    <td>${mov.cantidad ?? ""}</td>
-    <td>${mov.precioUnitario ?? ""}</td>
-    <td>${mov.precioVenta ?? ""}</td>
-    <td>${mov.stockAnterior ?? ""}</td>
-    <td>${mov.stockNuevo ?? ""}</td>
-    <td>${mov.motivo ?? ""}</td>
-    <td>${formatearFechaMovimiento(mov.fechaMovimiento)}</td>
-    <td>${mov.usuario ?? ""}</td>
-  </tr>
-`).join("");
+    movimientosTableBody.innerHTML = movimientos.map((mov) => `
+      <tr>
+        <td>${mov.idmovimiento ?? ""}</td>
+        <td>${mov.tipoMovimiento ?? ""}</td>
+        <td>${mov.nombreProducto ?? ""}</td>
+        <td>${mov.codigoProducto ?? ""}</td>
+        <td>${mov.idPedido ?? ""}</td>
+        <td>${mov.cliente ?? ""}</td>
+        <td>${mov.cantidad ?? ""}</td>
+        <td>${mov.precioUnitario ?? ""}</td>
+        <td>${mov.precioVenta ?? ""}</td>
+        <td>${mov.stockAnterior ?? ""}</td>
+        <td>${mov.stockNuevo ?? ""}</td>
+        <td>${mov.motivo ?? ""}</td>
+        <td>${formatearFechaMovimiento(mov.fechaMovimiento)}</td>
+        <td>${mov.usuario ?? ""}</td>
+      </tr>
+    `).join("");
   } catch (error) {
     movimientosTableBody.innerHTML = `
       <tr>
-        <td colspan="7" class="inventario-empty">Error al cargar historial.</td>
+        <td colspan="14" class="inventario-empty">Error al cargar historial.</td>
       </tr>
     `;
-  }
-}
-
-async function registrarMovimientoInventario() {
-  const cmbProductoMovimiento = document.getElementById("cmbProductoMovimiento");
-  const cmbTipoMovimiento = document.getElementById("cmbTipoMovimiento");
-  const txtCantidadMovimiento = document.getElementById("txtCantidadMovimiento");
-  const txtMotivoMovimiento = document.getElementById("txtMotivoMovimiento");
-
-  const idproducto = cmbProductoMovimiento.value;
-  const tipoMovimiento = cmbTipoMovimiento.value;
-  const cantidad = txtCantidadMovimiento.value;
-  const motivo = txtMotivoMovimiento.value;
-
-  if (!idproducto || !tipoMovimiento || !cantidad) {
-    mostrarMensajeMovimiento("Seleccione producto, tipo de movimiento y cantidad.", "error");
-    return;
-  }
-
-  if (Number(cantidad) <= 0) {
-    mostrarMensajeMovimiento("La cantidad debe ser mayor a 0.", "error");
-    return;
-  }
-
-  try {
-    const response = await fetch(API_MOVIMIENTOS, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        idproducto,
-        tipoMovimiento,
-        cantidad,
-        motivo,
-        usuario: sessionStorage.getItem("usuario") || "Sistema"
-      })
-    });
-
-    const resultado = await response.json();
-
-    if (!resultado.ok) {
-      mostrarMensajeMovimiento(resultado.mensaje || "No se pudo registrar el movimiento.", "error");
-      return;
-    }
-
-    mostrarMensajeMovimiento(resultado.mensaje || "Movimiento registrado correctamente.", "ok");
-
-    cmbProductoMovimiento.value = "";
-    cmbTipoMovimiento.value = "";
-    txtCantidadMovimiento.value = "";
-    txtMotivoMovimiento.value = "";
-
-    await cargarMovimientos();
-  } catch (error) {
-    mostrarMensajeMovimiento("Error al registrar el movimiento.", "error");
   }
 }

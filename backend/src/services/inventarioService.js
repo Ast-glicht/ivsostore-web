@@ -1,5 +1,6 @@
 const inventarioRepository = require('../repositories/inventarioRepository');
 const movimientosRepository = require('../repositories/movimientosRepository');
+
 function validarTelefonoProveedor(numeroProveedor) {
   if (!numeroProveedor) return false;
 
@@ -61,6 +62,14 @@ function validarCamposProducto(data) {
     }
   }
 
+  if (data.fechaVencimiento) {
+    const fechaVencimiento = new Date(data.fechaVencimiento);
+
+    if (Number.isNaN(fechaVencimiento.getTime())) {
+      return 'La fecha de vencimiento es inválida.';
+    }
+  }
+
   return null;
 }
 
@@ -77,37 +86,41 @@ async function registrarProducto(data) {
       mensaje: error
     };
   }
+
   const codigoExiste = await inventarioRepository.existeCodigoProducto(data.codigo.trim());
 
-if (codigoExiste) {
-  return {
-    ok: false,
-    mensaje: 'Ya existe un producto registrado con este código.'
-  };
-}
-const productoRegistrado = await inventarioRepository.registrarProducto({
-  nombreProducto: data.nombreProducto.trim(),
-  descripcion: data.descripcion.trim(),
-  codigo: data.codigo.trim(),
-  precio: Number(data.precio),
-  stock: Number(data.stock),
-  proveedor: data.proveedor.trim(),
-  numeroProveedor: data.numeroProveedor.trim(),
-  fechaVencimiento: data.fechaVencimiento || null
-});
+  if (codigoExiste) {
+    return {
+      ok: false,
+      mensaje: 'Ya existe un producto registrado con este código.'
+    };
+  }
 
-await movimientosRepository.registrarMovimiento({
-  idproducto: productoRegistrado.idproducto,
-  tipoMovimiento: 'Entrada',
-  cantidad: Number(data.stock),
-  motivo: `Se realizó esta entrada al registrar el producto el ${new Date().toLocaleString('es-NI')}.`,
-  usuario: data.usuario || 'Sistema',
-  codigoProducto: data.codigo.trim(),
-  precioUnitario: Number(data.precio),
-  precioVenta: Number(data.precio),
-  stockAnterior: 0,
-  stockNuevo: Number(data.stock)
-});
+  const productoRegistrado = await inventarioRepository.registrarProducto({
+    nombreProducto: data.nombreProducto.trim(),
+    descripcion: data.descripcion.trim(),
+    codigo: data.codigo.trim(),
+    precio: Number(data.precio),
+    stock: Number(data.stock),
+    proveedor: data.proveedor.trim(),
+    numeroProveedor: data.numeroProveedor.trim(),
+    fechaVencimiento: data.fechaVencimiento || null
+  });
+
+  if (productoRegistrado?.idproducto) {
+    await movimientosRepository.registrarMovimiento({
+      idproducto: productoRegistrado.idproducto,
+      tipoMovimiento: 'Entrada',
+      cantidad: Number(data.stock),
+      motivo: `Se realizó esta entrada al registrar el producto el ${new Date().toLocaleString('es-NI')}.`,
+      usuario: data.usuario || 'Sistema',
+      codigoProducto: data.codigo.trim(),
+      precioUnitario: Number(data.precio),
+      precioVenta: Number(data.precio),
+      stockAnterior: 0,
+      stockNuevo: Number(data.stock)
+    });
+  }
 
   return {
     ok: true,
@@ -131,15 +144,20 @@ async function actualizarProducto(id, data) {
       mensaje: error
     };
   }
-const codigoExiste = await inventarioRepository.existeCodigoProducto(data.codigo.trim(), Number(id));
 
-if (codigoExiste) {
-  return {
-    ok: false,
-    mensaje: 'Ya existe otro producto registrado con este código.'
-  };
-}
-  await inventarioRepository.actualizarProducto(Number(id), {
+  const codigoExiste = await inventarioRepository.existeCodigoProducto(
+    data.codigo.trim(),
+    Number(id)
+  );
+
+  if (codigoExiste) {
+    return {
+      ok: false,
+      mensaje: 'Ya existe otro producto registrado con este código.'
+    };
+  }
+
+  const resultadoStock = await inventarioRepository.actualizarProducto(Number(id), {
     nombreProducto: data.nombreProducto.trim(),
     descripcion: data.descripcion.trim(),
     codigo: data.codigo.trim(),
@@ -150,6 +168,21 @@ if (codigoExiste) {
     fechaDeCompra: data.fechaDeCompra ? new Date(data.fechaDeCompra) : new Date(),
     fechaVencimiento: data.fechaVencimiento || null
   });
+
+  if (resultadoStock && resultadoStock.diferencia !== 0) {
+    await movimientosRepository.registrarMovimiento({
+      idproducto: Number(id),
+      tipoMovimiento: resultadoStock.diferencia > 0 ? 'Entrada' : 'Salida',
+      cantidad: Math.abs(resultadoStock.diferencia),
+      motivo: `Se actualizó el stock del producto el ${new Date().toLocaleString('es-NI')}.`,
+      usuario: data.usuario || 'Sistema',
+      codigoProducto: resultadoStock.codigoProducto,
+      precioUnitario: resultadoStock.precio,
+      precioVenta: resultadoStock.precio,
+      stockAnterior: resultadoStock.stockAnterior,
+      stockNuevo: resultadoStock.stockNuevo
+    });
+  }
 
   return {
     ok: true,
