@@ -2,7 +2,19 @@ const API_USUARIOS = "/api/usuarios";
 
 let usuariosOriginales = [];
 let usuarioOriginalActual = null;
+function obtenerUsuarioLogueado() {
+  try {
+    const data = localStorage.getItem("ivsostore_user");
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    return null;
+  }
+}
 
+function obtenerRolActual() {
+  const usuario = obtenerUsuarioLogueado();
+  return usuario?.rol || "";
+}
 function renderUsuariosView() {
   return `
     <div class="usuarios-module">
@@ -296,7 +308,7 @@ async function crearUsuario() {
         contrasena: txtContrasenaAdmin.value.trim(),
         rol: cmbRolAdmin.value,
         estado: cmbEstadoAdmin.value,
-        rolActual: sessionStorage.getItem("rol") || ""
+        rolActual: obtenerRolActual()
       })
     });
 
@@ -349,7 +361,7 @@ async function actualizarUsuario() {
         contrasena: txtContrasenaAdmin.value.trim(),
         rol: cmbRolAdmin.value,
         estado: cmbEstadoAdmin.value,
-        rolActual: sessionStorage.getItem("rol") || ""
+        rolActual: obtenerRolActual()
       })
     });
 
