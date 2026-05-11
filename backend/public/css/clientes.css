@@ -1,13 +1,13 @@
 .clientes-module {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 23px;
 }
 
 .clientes-grid {
   display: grid;
   grid-template-columns: 380px 1fr;
-  gap: 22px;
+  gap: 23px;
 }
 
 .clientes-card {
